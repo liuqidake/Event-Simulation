@@ -12,19 +12,18 @@ struct Customer{
     int remainingServiceTime;
 };
 
-
-class CustomerTotalServiceTimeCompare{
-public:
-    bool operator() (Customer &lhs, Customer &rhs){
+struct CustomerTotalServiceTimeCompare{
+    bool operator()(const Customer& lhs, const Customer& rhs)
+    {
         return (rhs.serviceTime+rhs.waitEndingTime - rhs.waitStartingTime)
-               - (lhs.serviceTime+lhs.waitEndingTime-lhs.waitStartingTime);
+            < (lhs.serviceTime+lhs.waitEndingTime - lhs.waitStartingTime);
     }
 };
 
-class CustomerServiceDurationCompare{
-public:
-    bool operator() (Customer &lhs, Customer &rhs){
-        return rhs.serviceTime - lhs.serviceTime;
+struct CustomerServiceDurationCompare{
+    bool operator()(const Customer& lhs, const Customer& rhs) const
+    {
+        return rhs.remainingServiceTime < lhs.remainingServiceTime;
     }
 };
 #endif //EVENTSIMULATIONS_CUSTOMER_H
