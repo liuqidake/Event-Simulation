@@ -32,7 +32,8 @@ public:
     BankSimulator(int arrivalRate, int maxServiceTime, int seed);
     void printResult();
     void bankSimulation(int serviceLimitTime);
-    void updateWaitingEvent(int second);
+    void updateWaitingEventWithNewCustomer(int second);
+    void updateWaitingEventWithNoCustomer(int minTime);
     void updateServiceEvent(int second, int minTime);
     void decreaseServiceTime(int minTime);
     void checkOutCustomers();

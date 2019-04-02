@@ -15,12 +15,26 @@ BankSimulator:: BankSimulator(int arrivalRate, int maxServiceTime, int seed){
 
 void BankSimulator::bankSimulation(int serviceLimitTime){
     int second = 0;
+    int minTime = 0;
     while(second < serviceLimitTime){
-        int minTime = std::min(timeToNextCustomerComing, timeToNextCustomerServiceTimeOver);
-        second += minTime;
-        updateWaitingEvent(second);
+        if(timeToNextCustomerComing <= timeToNextCustomerServiceTimeOver){
+            minTime = timeToNextCustomerComing;
+            second += minTime;
+            updateWaitingEventWithNewCustomer(second);
+        } else{
+            minTime = timeToNextCustomerServiceTimeOver;
+            second+= minTime;
+            updateWaitingEventWithNoCustomer(minTime);
+        }
+
         updateServiceEvent(second, minTime);
     }
+//    while(second < serviceLimitTime){
+//        int minTime = std::min(timeToNextCustomerComing, timeToNextCustomerServiceTimeOver);
+//        second += minTime;
+//        updateWaitingEvent(second);
+//        updateServiceEvent(second, minTime);
+//    }
 }
 
 void BankSimulator::printResult() {
@@ -50,15 +64,18 @@ void BankSimulator::printResult() {
 * add new customer into waiting queue when the time is the time that a customer should come to bank
 * @param second
 */
-void BankSimulator::updateWaitingEvent(int second){
-    //second % arrivalRate == 0 means the minimum time is the time before a new customer comes to a bank
-    if(second % arrivalRate == 0){
-        Customer customer = {second, -1, -1, -1};
-        waitingQueue.push(customer);
-        //std::cout<<waitingQueue.size()<<std::endl;
-    }
+void BankSimulator::updateWaitingEventWithNewCustomer(int second){
+
+    Customer customer = {second, -1, -1, -1};
+    waitingQueue.push(customer);
+
     //update the time towards a new customer coming to the bank
-    timeToNextCustomerComing = arrivalRate - (second%arrivalRate);
+    timeToNextCustomerComing = std::rand() % (arrivalRate)+1 +
+            (arrivalRate - (second%arrivalRate ==0?arrivalRate:second%arrivalRate));
+}
+
+void BankSimulator::updateWaitingEventWithNoCustomer(int minTime){
+    timeToNextCustomerServiceTimeOver -= minTime;
 }
 
 /**
