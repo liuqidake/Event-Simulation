@@ -66,7 +66,8 @@ void BankSimulator::printResult() {
 */
 void BankSimulator::updateWaitingEventWithNewCustomer(int second){
 
-    Customer customer = {second, -1, -1, -1};
+    Customer customer = {second, -1, std::rand() % (maxServiceTime) + 1, -1};
+    customer.remainingServiceTime = customer.serviceTime;
     waitingQueue.push(customer);
 
     //update the time towards a new customer coming to the bank
@@ -87,8 +88,8 @@ void BankSimulator::updateServiceEvent(int second, int minTime){
     decreaseServiceTime(minTime);
     checkOutCustomers();
     serveNextCustomers(second);
-    timeToNextCustomerServiceTimeOver = availableCheckersQueue.size() == 0?INT_MAX
-            :availableCheckersQueue.top().remainingServiceTime;
+    timeToNextCustomerServiceTimeOver = servingQueue.size() == 0?INT_MAX
+            :servingQueue.top().remainingServiceTime;
 }
 
 /**
@@ -96,35 +97,33 @@ void BankSimulator::updateServiceEvent(int second, int minTime){
  */
 void BankSimulator::decreaseServiceTime(int minTime){
     std::vector<Customer> temp;
-    while(!availableCheckersQueue.empty()) {
-        Customer customer = availableCheckersQueue.top();
+    while(!servingQueue.empty()) {
+        Customer customer = servingQueue.top();
         customer.remainingServiceTime = customer.remainingServiceTime- minTime;
         temp.push_back(customer);
-        availableCheckersQueue.pop();
+        servingQueue.pop();
     }
-    for(int i = 0; i< temp.size(); i++) availableCheckersQueue.push(temp[i]);
+    for(int i = 0; i< temp.size(); i++) servingQueue.push(temp[i]);
 }
 
 void BankSimulator::checkOutCustomers(){
-    while((!availableCheckersQueue.empty()) && availableCheckersQueue.top().remainingServiceTime == 0) {
-        Customer customer = availableCheckersQueue.top();
+    while((!servingQueue.empty()) && servingQueue.top().remainingServiceTime == 0) {
+        Customer customer = servingQueue.top();
         totalServiceTimeQueue.push(customer);
-        availableCheckersQueue.pop();
+        servingQueue.pop();
     }
 }
 
 void BankSimulator::serveNextCustomers(int second){
     int totalNumOfCheckers = 6;
-    if(availableCheckersQueue.size() < totalNumOfCheckers){
-        int remain = totalNumOfCheckers - availableCheckersQueue.size();
+    if(servingQueue.size() < totalNumOfCheckers){
+        int remain = totalNumOfCheckers - servingQueue.size();
         int add = 0;
         while(add < remain && !waitingQueue.empty()){
             Customer curr = waitingQueue.front();
             waitingQueue.pop();
             curr.waitEndingTime = second;
-            curr.serviceTime = std::rand() % (maxServiceTime) + 1;
-            curr.remainingServiceTime = curr.serviceTime;
-            availableCheckersQueue.push(curr);
+            servingQueue.push(curr);
             add++;
         }
     }

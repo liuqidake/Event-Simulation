@@ -16,7 +16,7 @@ private:
     //customers are added into this queue waiting for service
     std::queue<Customer> waitingQueue;
     //a priority queue for customers who are being served based on service time duration
-    std::priority_queue<Customer, std::vector<Customer>, CustomerServiceDurationCompare> availableCheckersQueue;
+    std::priority_queue<Customer, std::vector<Customer>, CustomerServiceDurationCompare> servingQueue;
     //a priority queue for customers who finish service based on the total service time
     std::priority_queue<Customer, std::vector<Customer>, CustomerTotalServiceTimeCompare> totalServiceTimeQueue;
     //the time length from the current time to the time that a customer coming to bank
@@ -27,6 +27,7 @@ private:
     int arrivalRate;
     //the time that the bank should be closed
     int maxServiceTime;
+
 
 public:
     BankSimulator(int arrivalRate, int maxServiceTime, int seed);

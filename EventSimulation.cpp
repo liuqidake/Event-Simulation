@@ -9,15 +9,9 @@ EventSimulation::EventSimulation(double rate, double maxInMinute, int seed){
     int maxServiceTime =  (int)60 * maxInMinute;
     this->serviceLimitTime = 12*60*60;
     this->bank = new BankSimulator(arrivalRate, maxServiceTime, seed);
-    //supermarket initialization
+    this->supermarket = new SupermarketSimulator(arrivalRate, maxServiceTime, seed);
 }
 void EventSimulation::eventSimulation(){
-    bankSimulation();
-    superMarketSimulation();
-}
-void EventSimulation::bankSimulation(){
-
-}
-void EventSimulation::superMarketSimulation(){
-
+    bank->bankSimulation(serviceLimitTime);
+    supermarket->supermarketSimulation(serviceLimitTime);
 }

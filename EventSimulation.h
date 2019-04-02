@@ -16,12 +16,10 @@ class EventSimulation{
 private:
     int serviceLimitTime;
     BankSimulator *bank;
-    //SupermarketSimulator supermarket;
+    SupermarketSimulator *supermarket;
 public:
     EventSimulation(double rate, double maxInMinute, int seed);
     void eventSimulation();
-    void bankSimulation();
-    void superMarketSimulation();
 };
 
 
