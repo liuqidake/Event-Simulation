@@ -83,6 +83,7 @@ void SupermarketSimulator::checkOutCustomers(){
         int index = customer.indexOfCashier;
         lines[index].totalTime -= customer.serviceTime;
         lines[index].serving = false;
+        lines[index].customers.pop();
         getMinTime();
         totalServiceTimeQueue.push(customer);
         servingQueue.pop();
@@ -97,7 +98,6 @@ void SupermarketSimulator::serveNextCustomers(int second) {
             customer.waitEndingTime = second;
             servingQueue.push(customer);
             line.serving = true;
-            line.customers.pop();
         }
     }
 }
