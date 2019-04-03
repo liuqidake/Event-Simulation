@@ -1,5 +1,5 @@
 
-#include "EventSimulation.h"
+#include "EventSimulator.h"
 
 int main(int argc, char* argv[]) {
       assert(argc ==4);

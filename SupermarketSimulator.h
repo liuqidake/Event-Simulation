@@ -11,13 +11,15 @@
 #include "math.h"
 #include "Customer.h"
 
+const int numOfCheckers = 6;
+
 class SupermarketSimulator{
 private:
     //the priority queue of customers who are being served
     std::priority_queue<Customer, std::vector<Customer>,CustomerServiceDurationCompare> servingQueue;
     std::vector<CustomerLine> lines; //six lines
-    int waitingTimeMinIndex = 0; //The line index which has the shoertest time to wait
-    int waitingTimeMinTime = 0;//The line' waiting time which is the shortest
+    int waitingTimeMinIndex ; //The line index which has the shoertest time to wait
+    int waitingTimeMinTime;//The line' waiting time which is the shortest
     //a priority queue for customers who finish service based on the total service time
     std::priority_queue<Customer, std::vector<Customer>, CustomerTotalServiceTimeCompare> totalServiceTimeQueue;
     int numOfServingCheckers; //the number of checkers who are no idle
@@ -28,8 +30,6 @@ private:
     int arrivalRate;
     //the time that the bank should be closed
     int maxServiceTime;
-
-    const int numOfCheckers = 6;
 public:
     SupermarketSimulator(int arrivalRate, int maxServiceTime, int seed);
     void printResult();

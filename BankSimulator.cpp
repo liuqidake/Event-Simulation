@@ -84,7 +84,6 @@ void BankSimulator::updateWaitingEventWithNoCustomer(int minTime){
  * @param second
  */
 void BankSimulator::updateServiceEvent(int second, int minTime){
-    int totalNumOfCheckers = 6;
     decreaseServiceTime(minTime);
     checkOutCustomers();
     serveNextCustomers(second);
