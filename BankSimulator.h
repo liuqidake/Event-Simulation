@@ -39,6 +39,7 @@ public:
     void decreaseServiceTime(int minTime);
     void checkOutCustomers();
     void serveNextCustomers(int second);
+    double getNintyPercent();
 };
 
 

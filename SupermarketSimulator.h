@@ -15,14 +15,11 @@ const int numOfCheckers = 6;
 
 class SupermarketSimulator{
 private:
-    //the priority queue of customers who are being served
-    std::priority_queue<Customer, std::vector<Customer>,CustomerServiceDurationCompare> servingQueue;
     std::vector<CustomerLine> lines; //six lines
     int waitingTimeMinIndex ; //The line index which has the shoertest time to wait
     int waitingTimeMinTime;//The line' waiting time which is the shortest
     //a priority queue for customers who finish service based on the total service time
     std::priority_queue<Customer, std::vector<Customer>, CustomerTotalServiceTimeCompare> totalServiceTimeQueue;
-    int numOfServingCheckers; //the number of checkers who are no idle
     int timeToNextCustomerComing;
     //the time length from the current time to the time that the service of a customer finished
     int timeToNextCustomerServiceTimeOver;
@@ -40,6 +37,8 @@ public:
     void decreaseServiceTime(int minTime);
     void checkOutCustomers();
     void serveNextCustomers(int second);
-    void getMinTime();
+    void getMinTotalTime();
+    int getMinRemainingTime();
+    double getNintyPercent();
 };
 #endif //EVENTSIMULATIONS_SUPERMARKETSIMULATOR_H

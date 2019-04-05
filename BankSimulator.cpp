@@ -29,12 +29,6 @@ void BankSimulator::bankSimulation(int serviceLimitTime){
 
         updateServiceEvent(second, minTime);
     }
-//    while(second < serviceLimitTime){
-//        int minTime = std::min(timeToNextCustomerComing, timeToNextCustomerServiceTimeOver);
-//        second += minTime;
-//        updateWaitingEvent(second);
-//        updateServiceEvent(second, minTime);
-//    }
 }
 
 void BankSimulator::printResult() {
@@ -58,6 +52,22 @@ void BankSimulator::printResult() {
         totalServiceTimeQueue.pop();
     }
     std::cout<<ten<<" "<<fifty<<" "<<ninty<<std::endl;
+}
+
+double BankSimulator::getNintyPercent() {
+    int total = this->totalServiceTimeQueue.size();
+    double ninty;
+    for(int i = 0; i < total; i++){
+        Customer customer = totalServiceTimeQueue.top();
+        if(i*100/ total == 90){
+            ninty = (customer.serviceTime+ customer.waitEndingTime - customer.waitStartingTime)/(double)60;
+            break;
+        }
+
+        totalServiceTimeQueue.pop();
+    }
+
+    return ninty;
 }
 
 /**
@@ -127,3 +137,4 @@ void BankSimulator::serveNextCustomers(int second){
         }
     }
 }
+
