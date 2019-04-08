@@ -10,29 +10,19 @@
 #include <vector>
 #include "math.h"
 #include "Customer.h"
+#include "PlaceInterface.hpp"
 
-class BankSimulator{
+class BankSimulator:public Place{
 private:
     //customers are added into this queue waiting for service
     std::queue<Customer> waitingQueue;
     //a priority queue for customers who are being served based on service time duration
     std::priority_queue<Customer, std::vector<Customer>, CustomerServiceDurationCompare> servingQueue;
-    //a priority queue for customers who finish service based on the total service time
-    std::priority_queue<Customer, std::vector<Customer>, CustomerTotalServiceTimeCompare> totalServiceTimeQueue;
-    //the time length from the current time to the time that a customer coming to bank
-    int timeToNextCustomerComing;
-    //the time length from the current time to the time that the service of a customer finished
-    int timeToNextCustomerServiceTimeOver;
-    //number of seconds that between two customers coming to bank
-    int arrivalRate;
-    //the time that the bank should be closed
-    int maxServiceTime;
-
 
 public:
     BankSimulator(int arrivalRate, int maxServiceTime, int seed);
     void printResult();
-    void bankSimulation(int serviceLimitTime);
+    void simulation(int serviceLimitTime);
     void updateWaitingEventWithNewCustomer(int second);
     void updateWaitingEventWithNoCustomer(int minTime);
     void updateServiceEvent(int second, int minTime);

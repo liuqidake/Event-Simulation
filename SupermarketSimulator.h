@@ -10,35 +10,38 @@
 #include <vector>
 #include "math.h"
 #include "Customer.h"
-
+#include "PlaceInterface.hpp"
 const int numOfCheckers = 6;
 
-class SupermarketSimulator{
+class SupermarketSimulator: public Place{
 private:
     std::vector<CustomerLine> lines; //six lines
-    int waitingTimeMinIndex ; //The line index which has the shoertest time to wait
-    int waitingTimeMinTime;//The line' waiting time which is the shortest
-    //a priority queue for customers who finish service based on the total service time
-    std::priority_queue<Customer, std::vector<Customer>, CustomerTotalServiceTimeCompare> totalServiceTimeQueue;
-    int timeToNextCustomerComing;
-    //the time length from the current time to the time that the service of a customer finished
-    int timeToNextCustomerServiceTimeOver;
-    //number of seconds that between two customers coming to bank
-    int arrivalRate;
-    //the time that the bank should be closed
-    int maxServiceTime;
+    int shortestLineIndex ; //The line index which has the shoertest time to wait
+    int shortestLineWaitTime;//The line' waiting time which is the shortest
+    
 public:
-    SupermarketSimulator(int arrivalRate, int maxServiceTime, int seed);
+    SupermarketSimulator(int arrivalRate, int maxServiceTime, int seed):Place(arrivalRate, maxServiceTime, seed){
+        this->shortestLineIndex= 0;
+        this->shortestLineWaitTime= 0;
+        //    lines vector of six customer lines
+        for(int i = 0; i< numOfCheckers; i++){
+            CustomerLine customerLine;
+            this->lines.push_back(customerLine);
+        }
+    };
+    
     void printResult();
-    void supermarketSimulation(int serviceLimitTime);
-    void updateWaitingEventWithNewCustomer(int second);
-    void updateWaitingEventWithNoCustomer(int minTime);
-    void updateServiceEvent(int second, int minTime);
-    void decreaseServiceTime(int minTime);
+    void simulation(int serviceLimitTime);
+    void updateWaitingEventWithNewCustomer(int currentTime);
+    void updateWaitingEventWithNoCustomer(int timeToJumpForward);
+    void updateServiceEvent(int currentTime, int timeToJumpForward);
+    void decreaseServiceTime(int timeToJumpForward);
     void checkOutCustomers();
-    void serveNextCustomers(int second);
-    void getMinTotalTime();
-    int getMinRemainingTime();
+    void serveNextCustomers(int currentTime);
+//    getMinTotalTime is actually updating the shortest lines' wait time
+    void findAndUpdateShortestLine();
+//    get the customer being process's shortest remaining process time
+    int getCurrCustomerRemainingTime();
     double getNintyPercent();
 };
 #endif //EVENTSIMULATIONS_SUPERMARKETSIMULATOR_H
