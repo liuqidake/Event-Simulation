@@ -4,25 +4,20 @@
 
 #include "BankSimulator.h"
 
-BankSimulator:: BankSimulator(int arrivalRate, int maxServiceTime, int seed){
-    std::srand(seed);
-    this->timeToNextCustomerComing = arrivalRate;
-    this->timeToNextCustomerServiceTimeOver = INT_MAX;
-    this->arrivalRate = arrivalRate;
-    this->maxServiceTime = maxServiceTime;
+BankSimulator:: BankSimulator(int arrivalRate, int maxServiceTime, int seed):Place(arrivalRate, maxServiceTime, seed){
 };
 
 
-void BankSimulator::bankSimulation(int serviceLimitTime){
+void BankSimulator::simulation(int serviceLimitTime){
     int second = 0;
     int minTime = 0;
     while(second < serviceLimitTime){
-        if(timeToNextCustomerComing <= timeToNextCustomerServiceTimeOver){
+        if(timeToNextCustomerComing <= timeToNextCustomerLeaving){
             minTime = timeToNextCustomerComing;
             second += minTime;
             updateWaitingEventWithNewCustomer(second);
         } else{
-            minTime = timeToNextCustomerServiceTimeOver;
+            minTime = timeToNextCustomerLeaving;
             second+= minTime;
             updateWaitingEventWithNoCustomer(minTime);
         }
@@ -86,7 +81,7 @@ void BankSimulator::updateWaitingEventWithNewCustomer(int second){
 }
 
 void BankSimulator::updateWaitingEventWithNoCustomer(int minTime){
-    timeToNextCustomerServiceTimeOver -= minTime;
+    timeToNextCustomerLeaving -= minTime;
 }
 
 /**
@@ -97,7 +92,7 @@ void BankSimulator::updateServiceEvent(int second, int minTime){
     decreaseServiceTime(minTime);
     checkOutCustomers();
     serveNextCustomers(second);
-    timeToNextCustomerServiceTimeOver = servingQueue.size() == 0?INT_MAX
+    timeToNextCustomerLeaving = servingQueue.size() == 0?INT_MAX
             :servingQueue.top().remainingServiceTime;
 }
 

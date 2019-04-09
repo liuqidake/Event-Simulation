@@ -4,49 +4,41 @@
 
 #include "SupermarketSimulator.h"
 
-
-SupermarketSimulator::SupermarketSimulator(int arrivalRate, int maxServiceTime, int seed){
-    std::srand(seed);
-    this->waitingTimeMinIndex= 0;
-    this->waitingTimeMinTime= 0;
-    for(int i = 0; i< numOfCheckers; i++){
-        CustomerLine customerLine;
-        this->lines.push_back(customerLine);
-    }
-    this->timeToNextCustomerComing = std::rand()%60 +1;
-    this->timeToNextCustomerServiceTimeOver = INT_MAX;
-    this->arrivalRate = arrivalRate;
-    this->maxServiceTime = maxServiceTime;
-};
-
-void SupermarketSimulator::supermarketSimulation(int serviceLimitTime){
-    int second = 0;
-    int minTime = 0;
-    while(second < serviceLimitTime){
-        if(timeToNextCustomerComing <= timeToNextCustomerServiceTimeOver){
-            minTime = timeToNextCustomerComing;
-            second += minTime;
-            if(second >= serviceLimitTime) return;
-            updateWaitingEventWithNewCustomer(second);
+void SupermarketSimulator::simulation(int serviceLimitTime){
+    int currentTime = 0;
+    int timeToJumpForward = 0;
+    
+    while(currentTime < serviceLimitTime){
+        if(timeToNextCustomerComing <= timeToNextCustomerLeaving){
+            timeToJumpForward = timeToNextCustomerComing;
+            currentTime += timeToJumpForward;
+            if(currentTime >= serviceLimitTime) return;
+            updateWaitingEventWithNewCustomer(currentTime);
         } else{
-            minTime = timeToNextCustomerServiceTimeOver;
-            second+= minTime;
-            if(second >= serviceLimitTime) return;
-            updateWaitingEventWithNoCustomer(minTime);
+            timeToJumpForward = timeToNextCustomerLeaving;
+            currentTime += timeToJumpForward;
+            if(currentTime >= serviceLimitTime) return;
+            //            decrement timeToNextCustomerToCome:
+            updateWaitingEventWithNoCustomer(timeToJumpForward);
         }
 
-        updateServiceEvent(second, minTime);
+        updateServiceEvent(currentTime, timeToJumpForward);
     }
 }
 
-void SupermarketSimulator::updateWaitingEventWithNewCustomer(int second) {
-    Customer customer = {second, -1, std::rand() % (maxServiceTime) + 1, -1,waitingTimeMinIndex};
+void SupermarketSimulator::updateWaitingEventWithNewCustomer(int currentTime) {
+    //create a new customer arrival and push the customer to the shortest line:
+    int serviceDuration = std::rand() % (maxServiceTime) + 1;
+    Customer customer = {currentTime, -1, serviceDuration, -1, shortestLineIndex};
     customer.remainingServiceTime = customer.serviceTime;
-    lines[waitingTimeMinIndex].customers.push(customer);
-    lines[waitingTimeMinIndex].totalTime += customer.serviceTime;
-    getMinTotalTime();
-    timeToNextCustomerComing = std::rand() % (arrivalRate)+1 +
-                               (arrivalRate - (second%arrivalRate ==0?arrivalRate:second%arrivalRate));
+    lines[shortestLineIndex].customers.push(customer);
+    lines[shortestLineIndex].totalTime += customer.serviceTime;
+    
+    //after adding new customer, find the current shortest line and update waittime:
+    findAndUpdateShortestLine();
+    
+    timeToNextCustomerComing =
+    std::rand() % (arrivalRate)+ 1 + (arrivalRate - (currentTime % arrivalRate == 0 ? arrivalRate : currentTime % arrivalRate));
 }
 
 void SupermarketSimulator::updateWaitingEventWithNoCustomer(int minTime) {
@@ -57,20 +49,20 @@ void SupermarketSimulator::updateWaitingEventWithNoCustomer(int minTime) {
  * update the status of the customers being served
  * @param second
  */
-void SupermarketSimulator::updateServiceEvent(int second, int minTime){
-    decreaseServiceTime(minTime);
+void SupermarketSimulator::updateServiceEvent(int currentTime, int timeToJump){
+    decreaseServiceTime(timeToJump);
     checkOutCustomers();
-    serveNextCustomers(second);
-    timeToNextCustomerServiceTimeOver = getMinRemainingTime();
+    serveNextCustomers(currentTime);
+    timeToNextCustomerLeaving = getCurrCustomerRemainingTime();
 }
 
 /**
  * Decrease the remaining time of all customers being served right now
  */
-void SupermarketSimulator::decreaseServiceTime(int minTime){
+void SupermarketSimulator::decreaseServiceTime(int timeToJumpForward){
     for(int i = 0; i< numOfCheckers; i++){
         if(lines[i].serving){
-            lines[i].customers.front().remainingServiceTime -= minTime;
+            lines[i].customers.front().remainingServiceTime -= timeToJumpForward;
         }
     }
 }
@@ -89,16 +81,16 @@ void SupermarketSimulator::checkOutCustomers(){
     }
 }
 
-void SupermarketSimulator::serveNextCustomers(int second) {
+void SupermarketSimulator::serveNextCustomers(int currentTime) {
     for(int i = 0; i< numOfCheckers; i++){
         if((!lines[i].serving) &&(!lines[i].customers.empty())){
             lines[i].serving = true;
-            lines[i].customers.front().waitEndingTime = second;
+            lines[i].customers.front().waitEndingTime = currentTime;
         }
     }
 }
 
-void SupermarketSimulator::getMinTotalTime(){
+void SupermarketSimulator::findAndUpdateShortestLine(){
     int minTime = lines[0].totalTime;
     int minIndex = 0;
     for(int i = 1; i< numOfCheckers; i++){
@@ -107,8 +99,8 @@ void SupermarketSimulator::getMinTotalTime(){
             minIndex = i;
         }
     }
-    this->waitingTimeMinTime = minTime;
-    this->waitingTimeMinIndex= minIndex;
+    this->shortestLineWaitTime = minTime;
+    this->shortestLineIndex= minIndex;
 }
 
 
@@ -150,10 +142,10 @@ double SupermarketSimulator::getNintyPercent() {
     return ninty;
 }
 
-int SupermarketSimulator::getMinRemainingTime() {
+int SupermarketSimulator::getCurrCustomerRemainingTime() {
     int minTime = INT_MAX;
     for(int i = 0; i< numOfCheckers; i++){
-        if(lines[i].serving && lines[i].customers.front().remainingServiceTime< minTime){
+        if(lines[i].serving && lines[i].customers.front().remainingServiceTime < minTime){
             minTime = lines[i].customers.front().remainingServiceTime;
         }
     }
